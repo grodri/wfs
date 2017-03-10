@@ -56,14 +56,14 @@
 #' @export
 wfs_extract <- function(varlist, dataset, source = "",
   convert.factors = TRUE) {
-  #
+
   # data files
   dct <- wfs_dct(dataset, source)
   dat <- wfs_get(dataset, "dat", source)
   varlocs <- wfs_varlist(varlist, dct)
   varnames <- names(varlocs)
   recs <- dct[varlocs]
-  #
+
   # extract data
   bots <- strtoi(substr(recs, 10, 13), base=10)
   lens <- strtoi(substr(recs, 15, 16), base=10)
@@ -92,6 +92,7 @@ wfs_extract <- function(varlist, dataset, source = "",
         if(length(k) == 1) vl <- vl[-k, ]
       }
     }
+
     # handle factors
     if(convert.factors & !is.null(vl) & lens[j] < 4) {
       if(all(df[,j] %in% c(vl$value, NA))) {
@@ -101,6 +102,7 @@ wfs_extract <- function(varlist, dataset, source = "",
     }
   }
   names(df) <- varnames
+
   # variable labels and special codes (as a data frame)
   ldf <- data.frame(
     variables = names(df),

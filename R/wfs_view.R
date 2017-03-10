@@ -3,7 +3,7 @@
 #' When called with no arguments this function points your browser
 #' to the WFS home page in the DHS data archive. When called with
 #' a dataset name it opens the data dictionary, reading it from
-#' a local file or from the data archive.use_vignett
+#' a local file or from the data archive.
 #'
 #' @param dataset String with optional dataset name, e.g. "cosr02"
 #' @param source  String with source folder or blank for DHS archive
