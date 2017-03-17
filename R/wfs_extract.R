@@ -71,7 +71,7 @@ wfs_extract <- function(varlist, dataset, source = "",
   df <- data.frame(matrix(NA, length(dat), length(varlocs)))
   for(j in 1:length(varlocs)) {
     raw <- substr(dat, bots[j], tops[j])
-    if(lens[j] <= 4) {
+    if(lens[j] <= 8) {
       df[, j] <- strtoi(raw, base=10)
     }
     else {
@@ -79,36 +79,40 @@ wfs_extract <- function(varlist, dataset, source = "",
     }
   }
 
-  # handle na
+  # process variables
   for(j in 1:length(varlocs)) {
-    cat(varnames[j],"\n")
+    cat(varnames[j],"\n")##debug
+    # handle na
     na <- strtoi(substr(recs[j], 26, 29), base=10)
     vl <- wfs_value_labels(varnames[j], dct)
     if(!is.na(na)) {
       isna <- df[,j] == na
       df[isna, j] <- NA
       if(!is.null(vl)){
-        k <- which(vl$value == na)
-        if(length(k) == 1) vl <- vl[-k, ]
+        vl <- vl[vl != na]
       }
     }
 
     # handle factors
+    isfactor <- FALSE
     if(convert.factors & !is.null(vl) & lens[j] < 4) {
-      if(all(df[,j] %in% c(vl$value, NA))) {
-        # debug cat(varnames[j],"\n")
-        df[,j] <- factor(df[,j], levels = vl$value, labels = vl$label)
+      values <- c(vl, NA)
+      if(all(df[,j] %in% values)) {
+        isfactor <- TRUE
+        df[,j] <- factor(df[,j], levels = vl, labels = names(vl))
       }
     }
+
+    # value labels
+    if(!is.null(vl) & !isfactor & lens[j] < 9) {
+      labelled::val_labels(df[ ,j]) <- vl
+    }
+
+    # variable label
+    label = stringr::str_trim(substr(dct[varlocs[j]], 36, 65))
+    if(label != "") labelled::var_label(df[, j]) <- label
   }
   names(df) <- varnames
-
-  # variable labels and special codes (as a data frame)
-  ldf <- data.frame(
-    variables = names(df),
-    specials = strtoi(substr(recs, 31, 34), base=10),
-    labels = str_trim(substr(recs, 36, 65)))
-  attr(df, "variableLabels") <- ldf
   df
 }
 
