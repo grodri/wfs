@@ -11,7 +11,7 @@ program, has made available a large number of public-use data files, see
 
 Install the development version directly from GitHub by first installing
 Hadley Wickman's `devtools` package, and then calling the function
-`install_github("grodri/nuptfer")`. 
+`install_github("grodri/wfs")`. 
 
 There is a [wiki](https://github.com/grodri/wfs/wiki) with comments on 
 the development process.
