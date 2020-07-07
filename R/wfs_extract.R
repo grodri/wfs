@@ -4,11 +4,13 @@
 #' the DHS data archive or the local file system
 #'
 #' @param varlist A required string with a comma-separated
-#'  list of variables, for example "v010, v110"
+#'  list of variables, for example "v010, v110". May include
+#'  ranges, wilcards or keywords as explained under Details
 #' @param dataset A required string with the name of a dataset,
-#'   for example "cosr02"
+#'  for example "cosr02"
 #' @param source An optional string specifying a local folder where
-#'  to find the files, leave blank to read from the DHS data archive
+#'  to find the files, leave blank to read the files from the DHS
+#'  data archive
 #' @param convert.factors An optional boolean, use value labels to
 #'  create factors?
 #' @return a data frame with attributes.
@@ -41,18 +43,22 @@
 #' \code{NA} have a corresponding value label. The conversion
 #' may be turned off by setting the flag to \code{FALSE}
 #'
-#' \strong{todo:}.
-#' The function returns a data frame with attributes, namely
-#' a \code{"variables"} and a \code{"labels"} attribute, both
-#' data frames.
-#' The \emph{variables} data frame has one row per variable and
-#' columns for the name, min, max, not applicable, and special codes,
-#' the variable label, and the name of a set of value labels.
-#' The \emph{labels} data frame has one row per labeled value,
-#' with columns for the set name, the value and the label.
-#' If \code{convert.factors} is set to \code{FALSE} during
-#' extraction this #' information may be used to do the conversion
-#' at a later time.
+#' The function returns a data frame.
+#'
+#' Each variable with value labels has a \code{"labels"} attribute
+#' with the value labels, unless it was converted to a factor.
+#' This information can be used to convert a variable to a factor
+#' at a later time using the function \code{labelled::to_factor()}
+#'
+#' Dictionaries may specify missing values and special codes.
+#' We recode all missing values to \code{NA}.
+#' For variables that are not converted to factors, we add the
+#' special code, if any, as a \code{"special"} attribute of the variable.
+#' Any numeric values greater or equal to the special code require
+#' special treatment in analysis.
+#'
+#' @section Example:
+#' wfs_extract("v011, v111", "cosr02")
 #' @export
 wfs_extract <- function(varlist, dataset, source = "",
   convert.factors = TRUE) {
@@ -72,7 +78,7 @@ wfs_extract <- function(varlist, dataset, source = "",
   for(j in 1:length(varlocs)) {
     raw <- substr(dat, bots[j], tops[j])
     if(lens[j] <= 8) {
-      df[, j] <- strtoi(raw, base=10)
+      df[, j] <- strtoi(raw, base=10) # non-numeric becomes NA
     }
     else {
       df[, j] <- as.character(raw)
@@ -81,17 +87,19 @@ wfs_extract <- function(varlist, dataset, source = "",
 
   # process variables
   for(j in 1:length(varlocs)) {
-    cat(varnames[j],"\n")##debug
+    cat(varnames[j],"\n") # debug
     # handle na
     na <- strtoi(substr(recs[j], 26, 29), base=10)
     vl <- wfs_value_labels(varnames[j], dct)
     if(!is.na(na)) {
-      isna <- df[,j] == na
+      isna <- df[,j] == na | is.na(df[,j]) # treat NA as TRUE
       df[isna, j] <- NA
       if(!is.null(vl)){
         vl <- vl[vl != na]
       }
     }
+    # get special code
+    sc <- strtoi(substr(recs[j], 31, 34, base=10)
 
     # handle factors
     isfactor <- FALSE
@@ -111,6 +119,9 @@ wfs_extract <- function(varlist, dataset, source = "",
     # variable label
     label = stringr::str_trim(substr(dct[varlocs[j]], 36, 65))
     if(label != "") labelled::var_label(df[, j]) <- label
+
+    # special codes
+    if(!isfactor & !is.na(sc)) attr(df[,j], "special") <- sc
   }
   names(df) <- varnames
   df

@@ -17,4 +17,3 @@
 #' @docType package
 #' @name wfs
 NULL
-#' NULL
