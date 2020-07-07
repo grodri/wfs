@@ -1,0 +1,28 @@
+Package: wfs
+Title: Extracting and Reshaping World Fertility Survey Data using R
+Version: 0.0.0.9000
+Authors@R: c( 
+    person(given = "Germán",
+           family = "Rodríguez",
+           role = c("aut", "cre"),
+           email = "grodri@princeton.edu"),
+    person(given = "Trevor",
+           family = "Croft",
+           role =  "aut",
+           email = "trevor.croft@icf.com")
+    )
+Description: The Demographic and Health Surveys (DHS) program, has made
+  available online a large number of public-use files from its predecessor,
+  the World Fertility Survey (WFS). This package facilitates use of these
+  datasets by providing functions to view the documentation, make local
+  copies of the files, extract data   directly from the data archive or 
+  using local copies, and reshape the union and birth histories from wide 
+  to long format and back.
+License: `use_mit_license()`
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Imports: 
+    stringr,
+    labelled

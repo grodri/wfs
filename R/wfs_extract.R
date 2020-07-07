@@ -99,7 +99,7 @@ wfs_extract <- function(varlist, dataset, source = "",
       }
     }
     # get special code
-    sc <- strtoi(substr(recs[j], 31, 34, base=10)
+    sc <- strtoi(substr(recs[j], 31, 34, base=10))
 
     # handle factors
     isfactor <- FALSE
