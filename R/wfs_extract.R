@@ -76,9 +76,10 @@ wfs_extract <- function(varlist, dataset, source = "",
   tops <- bots + lens - 1
   df <- data.frame(matrix(NA, length(dat), length(varlocs)))
   for(j in 1:length(varlocs)) {
-    raw <- substr(dat, bots[j], tops[j])
+    raw <- str_trim(substr(dat, bots[j], tops[j]))
     if(lens[j] <= 8) {
-      df[, j] <- strtoi(raw, base=10) # non-numeric becomes NA
+      if(str_detect(raw[1],"\\.")) df[,j] = as.numeric(raw)
+      else df[, j] <- strtoi(raw, base=10) # non-numeric becomes NA
     }
     else {
       df[, j] <- as.character(raw)
